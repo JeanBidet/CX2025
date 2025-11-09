@@ -123,6 +123,20 @@ course = RaceCourse(
 num_racers = 8  # Number of AI racers
 ```
 
+### Custom Race Examples
+
+Run the included examples to see different race configurations:
+
+```bash
+python3 example_custom_race.py
+```
+
+The examples demonstrate:
+- **Short Sprint Race**: Quick 3-lap race with 6 racers
+- **Endurance Race**: Long 8-lap race in rainy, muddy conditions
+- **Custom Racers**: Define specific racer attributes and strategies
+- **Technical Course**: Obstacle-heavy course in foggy conditions
+
 ## 📊 Race Statistics
 
 The game tracks:
