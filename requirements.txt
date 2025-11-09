@@ -1,0 +1,3 @@
+# CX2025 - Cyclocross Racing Game
+# Python 3.7+ required
+# No external dependencies required - uses only Python standard library
