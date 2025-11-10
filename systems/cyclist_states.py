@@ -57,6 +57,12 @@ class RidingState:
             # Restaure la vitesse max de base (sera modifiée par le terrain)
             physics.max_speed = cyclist._base_max_speed
 
+        # Active le drain d'endurance (désactive la récupération)
+        from components.stamina_component import StaminaComponent
+        stamina = cyclist.get_component(StaminaComponent)
+        if stamina:
+            stamina.set_recovering(False)
+
     def exit(self, cyclist: 'Cyclist') -> None:
         """
         Sortie de l'état RIDING.
@@ -76,8 +82,27 @@ class RidingState:
         """
         # L'animation est mise à jour automatiquement par l'AnimationController
         # La physique est gérée par PhysicsComponent
-        # La consommation d'endurance sera gérée par StaminaComponent (Prompt 6)
-        pass
+
+        # Vérification de l'équilibre : chute si critique
+        from components.balance_component import BalanceComponent
+        balance = cyclist.get_component(BalanceComponent)
+        if balance and balance.should_crash():
+            # Transition automatique vers CRASHED
+            if hasattr(cyclist, 'state_machine'):
+                print("[RidingState] Équilibre critique ! Transition vers CRASHED")
+                cyclist.state_machine.change_state(StateType.CRASHED)
+                return
+
+        # Vérification de l'endurance : avertissement si épuisé
+        from components.stamina_component import StaminaComponent
+        from config.constants import PerformanceZone
+        stamina = cyclist.get_component(StaminaComponent)
+        if stamina:
+            # Si épuisé, plus de risque de chute
+            if stamina.get_performance_zone() == PerformanceZone.EXHAUSTED:
+                # Augmente l'instabilité due à l'épuisement
+                if balance:
+                    balance.apply_imbalance(5.0 * delta_time, "exhaustion")
 
     def handle_input(self, cyclist: 'Cyclist', events: list[pygame.event.Event]) -> None:
         """
@@ -151,6 +176,19 @@ class CarryingState:
         if physics and hasattr(cyclist, '_base_max_speed'):
             physics.max_speed = cyclist._base_max_speed * self._carrying_speed_multiplier
 
+        # Active la récupération d'endurance
+        from components.stamina_component import StaminaComponent
+        stamina = cyclist.get_component(StaminaComponent)
+        if stamina:
+            stamina.set_recovering(True)
+
+        # Récupère l'équilibre progressivement
+        from components.balance_component import BalanceComponent
+        balance = cyclist.get_component(BalanceComponent)
+        if balance and balance.current_balance < 50.0:
+            # Boost de récupération initial lors du passage en portage
+            balance.current_balance = min(balance.max_balance, balance.current_balance + 20.0)
+
     def exit(self, cyclist: 'Cyclist') -> None:
         """
         Sortie de l'état CARRYING.
@@ -166,6 +204,12 @@ class CarryingState:
         if physics and hasattr(cyclist, '_base_max_speed'):
             physics.max_speed = cyclist._base_max_speed
 
+        # Désactive la récupération d'endurance
+        from components.stamina_component import StaminaComponent
+        stamina = cyclist.get_component(StaminaComponent)
+        if stamina:
+            stamina.set_recovering(False)
+
     def update(self, cyclist: 'Cyclist', delta_time: float) -> None:
         """
         Update de l'état CARRYING.
@@ -174,7 +218,8 @@ class CarryingState:
             cyclist: L'entité cycliste
             delta_time: Temps écoulé
         """
-        # Récupération partielle d'endurance (futur Prompt 6)
+        # La récupération d'endurance est gérée automatiquement par StaminaComponent
+        # L'équilibre se récupère aussi automatiquement
         pass
 
     def handle_input(self, cyclist: 'Cyclist', events: list[pygame.event.Event]) -> None:

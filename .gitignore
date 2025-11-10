@@ -135,3 +135,6 @@ dmypy.json
 saves/
 screenshots/
 logs/
+
+# Node modules (if any JS tools are used)
+node_modules/

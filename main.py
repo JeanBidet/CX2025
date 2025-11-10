@@ -15,6 +15,7 @@ from scenes.physics_test_scene import PhysicsTestScene
 from scenes.command_test_scene import CommandTestScene
 from scenes.terrain_test_scene import TerrainTestScene
 from scenes.state_test_scene import StateTestScene
+from scenes.stamina_balance_test_scene import StaminaBalanceTestScene
 
 
 class Game:
@@ -83,10 +84,14 @@ class Game:
         state_scene = StateTestScene()
         self._scene_manager.register_scene("state", state_scene)
 
+        # Crée et enregistre la scène de test Stamina/Balance (Prompt 6)
+        stamina_balance_scene = StaminaBalanceTestScene()
+        self._scene_manager.register_scene("stamina_balance", stamina_balance_scene)
+
         # TODO: Ajouter d'autres scènes (Menu, Race, Results) dans les futurs prompts
 
-        # Active la scène de test Terrain System par défaut
-        self._scene_manager.change_scene("terrain")
+        # Active la scène de test Stamina/Balance par défaut
+        self._scene_manager.change_scene("stamina_balance")
 
         print("[Game] Scènes configurées")
 
@@ -149,6 +154,8 @@ class Game:
                     self._scene_manager.change_scene("terrain")
                 elif event.key == pygame.K_F2:
                     self._scene_manager.change_scene("state")
+                elif event.key == pygame.K_F4:
+                    self._scene_manager.change_scene("stamina_balance")
 
         # Transmet les événements au Scene Manager
         self._scene_manager.handle_events(events)

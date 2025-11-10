@@ -10,6 +10,8 @@ from components.transform_component import TransformComponent
 from components.physics_component import PhysicsComponent
 from components.command_input_component import CommandInputComponent
 from components.state_machine_component import StateMachineComponent
+from components.stamina_component import StaminaComponent
+from components.balance_component import BalanceComponent
 from systems.cyclist_state import StateType
 from systems.cyclist_states import RidingState, CarryingState, RemountingState, CrashedState
 from systems.animation_system import Animation, AnimationController
@@ -76,6 +78,12 @@ class CyclistWithStates(Entity):
             max_speed=self._base_max_speed,
             use_gravity=False
         )
+
+        # Stamina (endurance)
+        self.add_component(StaminaComponent)
+
+        # Balance (équilibre)
+        self.add_component(BalanceComponent)
 
         # Command Input (pour le joueur)
         if self.is_player:
@@ -157,11 +165,23 @@ class CyclistWithStates(Entity):
         # Update la state machine (qui update l'état actuel)
         # Les composants sont updatés automatiquement par l'Entity Manager
 
+        # Appliquer le modificateur de vitesse selon l'endurance
+        self._apply_stamina_speed_modifier()
+
         # Update l'animation
         self.animation_controller.update(delta_time)
 
         # Call parent update
         super().update(delta_time)
+
+    def _apply_stamina_speed_modifier(self) -> None:
+        """Applique le modificateur de vitesse basé sur la zone de performance."""
+        stamina = self.get_component(StaminaComponent)
+        physics = self.get_component(PhysicsComponent)
+
+        if stamina and physics:
+            speed_multiplier = stamina.get_speed_multiplier()
+            physics.max_speed = self._base_max_speed * speed_multiplier
 
     def get_current_animation_frame(self):
         """
@@ -198,6 +218,14 @@ class CyclistWithStates(Entity):
     def is_crashed(self) -> bool:
         """Vérifie si le cycliste est en état CRASHED."""
         return self._crashed_effect_active
+
+    def get_stamina(self) -> StaminaComponent | None:
+        """Retourne le composant d'endurance."""
+        return self.get_component(StaminaComponent)
+
+    def get_balance(self) -> BalanceComponent | None:
+        """Retourne le composant d'équilibre."""
+        return self.get_component(BalanceComponent)
 
     def __repr__(self) -> str:
         """Représentation string du cycliste."""

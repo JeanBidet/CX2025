@@ -26,6 +26,14 @@ class SceneType(Enum):
     TEST = auto()
 
 
+class PerformanceZone(Enum):
+    """Zones de performance selon le niveau d'endurance du cycliste."""
+    OPTIMAL = auto()     # 70-100% endurance : performance normale
+    MODERATE = auto()    # 40-70% endurance : -10% vitesse max
+    CRITICAL = auto()    # 10-40% endurance : -30% vitesse, contrôle réduit
+    EXHAUSTED = auto()   # 0-10% endurance : -50% vitesse, risque de chute
+
+
 # Couleurs communes (RGB)
 class Colors:
     """Couleurs utilisées dans le jeu."""

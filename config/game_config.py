@@ -48,6 +48,42 @@ class GameConfig:
     CYCLIST_TURN_SPEED_FAST: float = 1.5  # Rotation à haute vitesse (rad/s)
     CYCLIST_SPEED_THRESHOLD: float = 200.0  # Seuil vitesse pour rotation (px/s)
 
+    # Paramètres d'endurance (Stamina)
+    STAMINA_MAX: float = 100.0  # Endurance maximale
+    STAMINA_BASE_DRAIN_RATE: float = 2.0  # Drain de base par seconde (au repos)
+    STAMINA_RECOVERY_RATE: float = 8.0  # Récupération par seconde en mode portage
+    STAMINA_VELOCITY_MULTIPLIER: float = 0.015  # Facteur de drain basé sur la vitesse
+    STAMINA_SLOPE_MULTIPLIER: float = 2.5  # Multiplicateur pour les montées
+    STAMINA_FATIGUE_RECOVERY_PENALTY: float = 0.7  # Réduction récupération par fatigue
+
+    # Seuils des zones de performance (pourcentages de stamina)
+    STAMINA_OPTIMAL_THRESHOLD: float = 70.0  # Au-dessus : zone OPTIMAL
+    STAMINA_MODERATE_THRESHOLD: float = 40.0  # Au-dessus : zone MODERATE
+    STAMINA_CRITICAL_THRESHOLD: float = 10.0  # Au-dessus : zone CRITICAL, en dessous : EXHAUSTED
+
+    # Modificateurs de performance par zone
+    PERFORMANCE_OPTIMAL_SPEED_MULT: float = 1.0  # Vitesse normale
+    PERFORMANCE_MODERATE_SPEED_MULT: float = 0.9  # -10% vitesse
+    PERFORMANCE_CRITICAL_SPEED_MULT: float = 0.7  # -30% vitesse
+    PERFORMANCE_EXHAUSTED_SPEED_MULT: float = 0.5  # -50% vitesse
+
+    # Paramètres d'équilibre (Balance)
+    BALANCE_MAX: float = 100.0  # Équilibre maximal (totalement stable)
+    BALANCE_RECOVERY_RATE: float = 25.0  # Récupération par seconde en conditions optimales
+    BALANCE_CRITICAL_THRESHOLD: float = 20.0  # En dessous : risque de chute
+    BALANCE_CRASH_THRESHOLD: float = 5.0  # En dessous : chute garantie
+
+    # Facteurs d'instabilité
+    BALANCE_CAMBER_MULTIPLIER: float = 1.5  # Impact de l'inclinaison latérale
+    BALANCE_SPEED_MULTIPLIER: float = 0.8  # Impact de la vitesse sur l'instabilité
+    BALANCE_LOW_STAMINA_MULTIPLIER: float = 1.8  # Plus d'instabilité si épuisé
+    BALANCE_TERRAIN_GRIP_FACTOR: float = 2.0  # Multiplicateur basé sur le grip
+
+    # Paramètres de fatigue cumulative
+    FATIGUE_ACCUMULATION_RATE: float = 0.5  # Taux d'accumulation par seconde d'effort
+    FATIGUE_MAX: float = 100.0  # Fatigue maximale
+    FATIGUE_RECOVERY_IN_CARRYING: float = 2.0  # Récupération de fatigue en portage
+
     @classmethod
     def get_window_size(cls) -> Tuple[int, int]:
         """Retourne la taille de la fenêtre."""
