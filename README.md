@@ -1,479 +1,306 @@
-# CycloCross 2025
+# 🐍 Prompts Jeu Cyclo-Cross - Pygame Version
 
-Jeu de cyclo-cross développé avec **Phaser 3**, **TypeScript** et **Vite**, mettant l'accent sur une architecture propre et des design patterns robustes.
+## 📚 Vue d'Ensemble
 
----
+Série complète de 11 prompts pour créer un jeu de cyclo-cross 2D avec Pygame
+et une architecture exemplaire utilisant les design patterns.
 
-## 📋 Table des matières
+## 🎯 Stack Technique
 
-- [Vue d'ensemble](#-vue-densemble)
-- [Contrôles](#-contrôles)
-- [Technologies](#-technologies)
-- [Installation](#-installation)
-- [Scripts disponibles](#-scripts-disponibles)
-- [Architecture](#-architecture)
-- [Structure du projet](#-structure-du-projet)
-- [Design Patterns](#-design-patterns)
-- [Conventions de code](#-conventions-de-code)
-- [Développement](#-développement)
-- [Documentation technique](#-documentation-technique)
+- **Langage** : Python 3.10+
+- **Framework** : Pygame
+- **Style** : Type hints stricts (mypy compatible)
+- **Architecture** : Entity-Component + Design Patterns
+- **Vue** : Top-down 2D
+- **Graphismes** : Pixel art simple
 
----
+## 📋 Liste des Prompts
 
-## 🎯 Vue d'ensemble
+### ✅ Prompts Détaillés (1-5)
 
-**CycloCross 2025** est un jeu de course de cyclo-cross qui simule les défis uniques de ce sport : terrains variés (boue, sable, gravier), obstacles nécessitant portage du vélo, gestion de l'endurance et de l'équilibre.
+1. **prompt_pygame_01_architecture_base.txt**
+   - Setup Pygame + environnement virtuel
+   - Entity-Component architecture
+   - Game loop à 60 FPS
+   - Scene Manager
+   - Vector2 et utilitaires
 
-Le projet démontre l'utilisation professionnelle de :
-- **Phaser 3** comme moteur de jeu
-- **TypeScript** en mode strict pour la qualité du code
-- **Architecture Entity-Component** combinant Phaser et logique métier
-- **Design Patterns** (Command, State, Strategy, Factory)
-- **Principes SOLID** et séparation des préoccupations
+2. **prompt_pygame_02_physique_mouvement.txt**
+   - Moteur physique custom (pas de lib externe)
+   - PhysicsComponent et TransformComponent
+   - Contrôles clavier Pygame
+   - Rotation et inertie
 
----
+3. **prompt_pygame_03_command_pattern.txt**
+   - Command Pattern avec typing.Protocol
+   - InputHandler intégré avec pygame.key
+   - Configuration touches flexible
+   - Préparation replay et IA
 
-## 🎮 Contrôles
+4. **prompt_pygame_04_factory_terrains.txt**
+   - Factory Pattern pour terrains
+   - Grille 2D de tuiles
+   - Rendu avec pygame.draw ou sprites
+   - Chargement maps JSON
+   - Intégration physique (vitesse, grip)
 
-### Clavier
+5. **prompt_pygame_05_state_pattern.txt**
+   - State Pattern avec typing.Protocol
+   - États : RIDING, CARRYING, REMOUNTING, CRASHED
+   - Système d'animation frame-by-frame
+   - Transitions et effets visuels
 
-| Touche | Action |
-|--------|--------|
-| **↑** | Accélérer |
-| **↓** | Freiner |
-| **← →** | Tourner |
-| **SHIFT** | Sprint (+50% vitesse) |
+### 📝 Prompts Concis (6-11)
 
-### Caractéristiques du Mouvement
-- ✅ **Inertie réaliste** : accélération et freinage progressifs
-- ✅ **Rotation dépendante de la vitesse** : plus rapide à basse vitesse, plus lente à haute vitesse
-- ✅ **Physique Arcade** : 60 FPS stable avec delta time
-- ✅ **Sprint** : boost temporaire de vitesse
-- ✅ **Caméra fluide** : suit le joueur avec interpolation douce
+6. **prompt_pygame_06_endurance_equilibre.txt**
+   - Jauges avec pygame.draw
+   - Calculs dynamiques
+   - Zones de performance
 
-Pour plus de détails, voir [CONTROLS.md](CONTROLS.md) et [PHYSICS.md](PHYSICS.md).
+7. **prompt_pygame_07_obstacles_factory.txt**
+   - Factory pour obstacles
+   - Collisions pygame.Rect
+   - Mécaniques saut/portage
 
----
+8. **prompt_pygame_08_composite_circuits.txt**
+   - Composite Pattern
+   - Track Builder
+   - Sérialisation JSON
 
-## 🛠️ Technologies
+9. **prompt_pygame_09_strategy_ia.txt**
+   - Strategy Pattern
+   - Pathfinding simple
+   - IA utilisant Commands
 
-| Technologie | Version | Rôle |
-|------------|---------|------|
-| **Phaser 3** | ^3.87.0 | Moteur de jeu (rendu, physique, assets) |
-| **TypeScript** | ^5.6.3 | Langage principal (typage strict) |
-| **Vite** | ^6.0.3 | Build tool moderne (HMR, optimisations) |
-| **Node.js** | 18+ | Environnement d'exécution |
+10. **prompt_pygame_10_course_scoring.txt**
+    - RaceManager
+    - Chronométrage précis
+    - Classement et stats
 
----
+11. **prompt_pygame_11_ui_feedback.txt**
+    - HUD complet
+    - Particules custom
+    - Menus et effets
 
-## 📦 Installation
+## 🎨 Design Patterns Utilisés
 
-### Prérequis
+1. **Entity-Component** (Prompt 1) - Architecture modulaire
+2. **Command Pattern** (Prompt 3) - Gestion inputs
+3. **Factory Pattern** (Prompts 4, 7) - Création objets
+4. **State Pattern** (Prompt 5) - États cycliste
+5. **Strategy Pattern** (Prompt 9) - Comportements IA
+6. **Composite Pattern** (Prompt 8) - Construction circuits
+7. **Observer Pattern** (Prompt 10) - Événements
 
-- Node.js 18 ou supérieur
-- npm ou yarn
+## 🚀 Installation et Setup
 
-### Étapes
+### Première installation (déjà fait)
 
 ```bash
-# Cloner le dépôt
-git clone <url-du-repo>
-cd CycloCross2025
+# Créer environnement virtuel
+python -m venv venv
+
+# Activer (Windows)
+venv\Scripts\activate
+
+# Activer (Linux/Mac)
+source venv/bin/activate
 
 # Installer les dépendances
-npm install
-
-# Lancer le serveur de développement
-npm run dev
+pip install -r requirements.txt
 ```
 
-Le jeu sera accessible sur `http://localhost:3000`.
+### Lancer le jeu
 
----
+```bash
+# Avec l'environnement virtuel activé
+python main.py
 
-## 🚀 Scripts disponibles
-
-| Commande | Description |
-|----------|-------------|
-| `npm run dev` | Lance le serveur de développement avec HMR |
-| `npm run build` | Build de production dans `/dist` |
-| `npm run preview` | Prévisualise le build de production |
-| `npm run type-check` | Vérifie les types TypeScript sans build |
-
----
-
-## 🏗️ Architecture
-
-### Principes architecturaux
-
-Le projet utilise une **architecture Entity-Component** adaptée à Phaser :
-
-```
-┌─────────────────────────────────────────┐
-│         Phaser GameObjects              │
-│     (Sprite, Container, etc.)           │
-│                                         │
-│  ┌───────────────────────────────────┐ │
-│  │     Composants Métier             │ │
-│  │  (StaminaComponent, AIComponent)  │ │
-│  └───────────────────────────────────┘ │
-└─────────────────────────────────────────┘
+# Ou directement avec le Python du venv
+venv\Scripts\python.exe main.py  # Windows
+venv/bin/python main.py          # Linux/Mac
 ```
 
-**Avantages :**
-- ✅ Séparation rendu (Phaser) / logique métier (Components)
-- ✅ Réutilisabilité des composants
-- ✅ Testabilité maximale
-- ✅ Extensibilité sans modifier l'existant (Open/Closed Principle)
+### Commandes en jeu
 
-### Flux de données
+- **Flèches** ou **WASD** : Déplacer le rectangle
+- **ESPACE** : Afficher la position du joueur
+- **P** : Pause
+- **F3** : Toggle debug info
+- **F11** : Toggle fullscreen
+- **ECHAP** : Quitter le jeu
 
-```
-User Input → Command → Entity → Component → State/Strategy → GameObject Update
-```
-
----
-
-## 📁 Structure du projet
+## 📁 Structure Recommandée
 
 ```
-CycloCross2025/
-├── assets/                      # Ressources du jeu
-│   ├── sprites/                 # Images et spritesheets
-│   ├── tilemaps/                # Cartes du parcours
-│   └── sounds/                  # Musiques et effets sonores
-│
-├── src/
-│   ├── main.ts                  # Point d'entrée de l'application
-│   │
-│   ├── config/                  # Configuration du jeu
-│   │   ├── gameConfig.ts        # Configuration Phaser
-│   │   ├── constants.ts         # Constantes globales
-│   │   └── index.ts             # Exports centralisés
-│   │
-│   ├── scenes/                  # Scènes Phaser
-│   │   └── RaceScene.ts         # Scène de course principale
-│   │
-│   ├── entities/                # Entités du jeu (GameObjects)
-│   │   └── DemoSprite.ts        # Exemple d'entité avec composants
-│   │
-│   ├── components/              # Composants métier
-│   │   ├── BaseComponent.ts     # Classe de base des composants
-│   │   └── RotationComponent.ts # Exemple de composant
-│   │
-│   ├── systems/                 # Systèmes globaux
-│   │   ├── RaceManager.ts       # (À venir) Gestion de la course
-│   │   └── TerrainManager.ts    # (À venir) Gestion du terrain
-│   │
-│   ├── patterns/                # Design Patterns
-│   │   ├── commands/            # Pattern Command
-│   │   ├── strategies/          # Pattern Strategy
-│   │   ├── states/              # Pattern State
-│   │   └── factories/           # Pattern Factory
-│   │
-│   ├── types/                   # Types et interfaces TypeScript
-│   │   ├── IComponent.ts        # Interface des composants
-│   │   ├── ICommand.ts          # Interface Command
-│   │   ├── IState.ts            # Interface State
-│   │   ├── IStrategy.ts         # Interface Strategy
-│   │   ├── enums.ts             # Énumérations
-│   │   ├── gameData.ts          # Types de données métier
-│   │   └── index.ts             # Exports centralisés
-│   │
-│   └── utils/                   # Fonctions utilitaires
-│       └── MathUtils.ts         # Utilitaires mathématiques
-│
-├── index.html                   # Point d'entrée HTML
-├── package.json                 # Dépendances et scripts
-├── tsconfig.json                # Configuration TypeScript
-├── vite.config.ts               # Configuration Vite
-└── README.md                    # Ce fichier
+cyclo-cross-pygame/
+├── main.py
+├── requirements.txt
+├── config/
+│   ├── game_config.py
+│   └── constants.py
+├── entities/
+│   ├── entity.py
+│   └── cyclist.py
+├── components/
+│   ├── physics_component.py
+│   ├── transform_component.py
+│   ├── stamina_component.py
+│   └── ...
+├── patterns/
+│   ├── commands/
+│   ├── strategies/
+│   ├── states/
+│   └── factories/
+├── systems/
+│   ├── race_manager.py
+│   ├── terrain_manager.py
+│   └── ...
+├── scenes/
+│   ├── menu_scene.py
+│   ├── race_scene.py
+│   └── results_scene.py
+├── utils/
+│   ├── vector2.py
+│   └── helpers.py
+└── assets/
+    ├── sprites/
+    ├── fonts/
+    └── sounds/
 ```
 
----
+## 🔑 Différences Clés Pygame vs Phaser
 
-## 🎨 Design Patterns
+| Aspect | Pygame | Phaser |
+|--------|--------|--------|
+| **Physique** | Custom (manuel) | Arcade Physics intégré |
+| **Animations** | Frame-by-frame manuel | Système intégré |
+| **Tilemaps** | Grille 2D custom | Tilemap + Tiled |
+| **Collisions** | pygame.Rect manual | Intégré avec groupes |
+| **Événements** | pygame.event custom | EventEmitter |
+| **UI** | pygame.draw manuel | GameObjects variés |
 
-### 1. **Entity-Component Pattern**
+## 💡 Avantages Pygame
 
-Sépare les GameObjects Phaser de la logique métier.
+✅ **Pédagogique** : Comprendre les mécaniques bas niveau
+✅ **Contrôle total** : Pas de "magie" du framework
+✅ **Python** : Syntaxe claire, type hints
+✅ **Léger** : Dépendances minimales
+✅ **Portable** : Windows, Mac, Linux facilement
 
-```typescript
-// Component
-class StaminaComponent implements IComponent {
-  constructor(private owner: Phaser.GameObjects.GameObject) {}
+## 📖 Ordre d'Implémentation
 
-  update(time: number, delta: number): void {
-    // Logique d'endurance
-  }
-}
+Suivre l'ordre strict des prompts 1 → 11 :
 
-// Entity
-class Cyclist extends Phaser.GameObjects.Sprite {
-  private components: IComponent[] = [];
+1. ✅ **Architecture et setup** - COMPLÉTÉ
+   - Environnement virtuel Python configuré
+   - Pygame installé (version 2.6.1)
+   - Structure de projet complète
+   - Architecture Entity-Component fonctionnelle
+   - Entity Manager et Scene Manager implémentés
+   - Classe Vector2 complète
+   - Game Loop à 60 FPS
+   - Scène de test avec rectangle contrôlable
 
-  addComponent(component: IComponent): void {
-    this.components.push(component);
-  }
-}
-```
+2. ✅ **Physique custom** - COMPLÉTÉ
+   - PhysicsComponent avec forces, vélocité, accélération
+   - TransformComponent pour position/rotation/scale
+   - InputComponent pour contrôles clavier
+   - Intégration d'Euler pour simulation physique
+   - Rayon de braquage réaliste selon vitesse
+   - Inertie et drag configurables
+   - Classe Cyclist complète
+   - SpriteRendererComponent avec rotation
+   - PhysicsTestScene démonstration
+   - Documentation PHYSICS_SYSTEM.md
 
-### 2. **Command Pattern**
+3. ✅ **Command Pattern** - COMPLÉTÉ
+   - Interface ICommand avec typing.Protocol
+   - 7 commandes concrètes (Accelerate, Brake, Turn, Sprint, Stop, Reverse)
+   - CommandInputHandler pour mapping touches->commandes
+   - Configuration des touches dans input_config.py
+   - 3 profils de contrôle (arrows, wasd, hybrid)
+   - CommandInputComponent remplaçant InputComponent
+   - Système de priorités pour résoudre les conflits
+   - Changement de profil à chaud
+   - CommandTestScene démonstration
+   - Documentation COMMAND_PATTERN.md
+   - Architecture prête pour IA et replay
 
-Encapsule les actions en objets (utile pour input, undo/redo, replay, IA).
+4. ⏭️ Terrains avec Factory
+5. ⏭️ State Pattern
+6. ⏭️ Jauges
+7. ⏭️ Obstacles
+8. ⏭️ Circuits
+9. ⏭️ IA
+10. ⏭️ Course et scoring
+11. ⏭️ UI et polish
 
-```typescript
-interface IGameCommand {
-  execute(entity: Cyclist, deltaTime: number): void;
-  undo?(entity: Cyclist, deltaTime: number): void;
-  readonly name?: string;
-  readonly priority?: number;
-}
-
-class AccelerateCommand implements IGameCommand {
-  public readonly name = 'Accelerate';
-  public readonly priority = 10;
-
-  execute(entity: Cyclist, _deltaTime: number): void {
-    const body = entity.getBody();
-    const angle = entity.rotation;
-    const forceX = Math.cos(angle) * CYCLIST_ACCELERATION;
-    const forceY = Math.sin(angle) * CYCLIST_ACCELERATION;
-    body.setAcceleration(forceX, forceY);
-  }
-}
-```
-
-**Voir [COMMAND_PATTERN.md](docs/COMMAND_PATTERN.md) pour un guide complet.**
-
-### 3. **State Pattern**
-
-Gère les états du cycliste (pédalage, sprint, portage, chute).
-
-```typescript
-interface IState<TContext> {
-  enter(context: TContext): void;
-  update(context: TContext, delta: number): void;
-  exit(context: TContext): void;
-}
-
-class RidingState implements IState<Cyclist> {
-  enter(cyclist: Cyclist): void { /* ... */ }
-  update(cyclist: Cyclist, delta: number): void { /* ... */ }
-  exit(cyclist: Cyclist): void { /* ... */ }
-}
-```
-
-### 4. **Strategy Pattern**
-
-Interchangeabilité des algorithmes (IA, calculs de terrain).
-
-```typescript
-interface IStrategy<TInput, TOutput> {
-  execute(input: TInput): TOutput;
-}
-
-class AggressiveAI implements IStrategy<AIInput, void> {
-  execute(input: AIInput): void {
-    // Logique d'IA agressive
-  }
-}
-```
-
----
-
-## 📐 Conventions de code
-
-### TypeScript
-
-- **Mode strict activé** (`strict: true`)
-- **Pas de `any`** (utiliser `unknown` si nécessaire)
-- **Types explicites** pour les paramètres et retours de fonctions publiques
-- **JSDoc** pour toutes les interfaces et classes publiques
-
-### Nommage
-
-| Type | Convention | Exemple |
-|------|-----------|---------|
-| Classes | PascalCase | `RaceManager`, `Cyclist` |
-| Interfaces | IPascalCase | `IComponent`, `ICommand` |
-| Types | PascalCase | `CyclistStats`, `TerrainData` |
-| Enums | PascalCase | `TerrainType`, `CyclistState` |
-| Variables | camelCase | `maxSpeed`, `currentState` |
-| Constants | UPPER_SNAKE_CASE | `GAME_WIDTH`, `GRAVITY` |
-| Fichiers | PascalCase.ts | `RaceScene.ts`, `BaseComponent.ts` |
-
-### Organisation des fichiers
-
-- **Un export principal par fichier** (sauf pour types/enums)
-- **Imports groupés** : librairies externes → internes → types
-- **Alias de paths** : `@config`, `@scenes`, `@types`, etc.
-
----
-
-## 🧪 Développement
-
-### Hot Module Replacement (HMR)
-
-Vite supporte le HMR : les modifications de code sont reflétées instantanément sans recharger la page.
-
-### Debugging
-
-L'instance Phaser est exposée globalement :
-
-```javascript
-// Dans la console du navigateur
-window.game // Instance Phaser.Game
-window.game.scene.keys.RaceScene // Accès à la scène
-```
-
-### Configuration du debug Phaser
-
-Dans [constants.ts](src/config/constants.ts) :
-
-```typescript
-export const DEBUG_MODE = true;  // Active le mode debug
-export const SHOW_FPS = true;    // Affiche les FPS
-export const SHOW_COLLISIONS = false; // Affiche les hitboxes
-```
-
----
-
-## 📚 Documentation technique
-
-### Documentation avancée
-
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Architecture détaillée du projet
-- **[PHYSICS.md](docs/PHYSICS.md)** - Documentation complète du système physique
-- **[CONTROLS.md](docs/CONTROLS.md)** - Guide des contrôles et input système
-- **[COMMAND_PATTERN.md](docs/COMMAND_PATTERN.md)** - Guide complet du Command Pattern pour l'input système
-- **[TEST_GUIDE.md](docs/TEST_GUIDE.md)** - Guide de test du système de mouvement
-
-### Cycle de vie d'un composant
-
-```typescript
-class CustomComponent extends BaseComponent {
-  // 1. Constructeur
-  constructor(owner: Phaser.GameObjects.GameObject) {
-    super(owner);
-  }
-
-  // 2. Initialisation (appelé une fois)
-  init(): void {
-    // Setup initial
-  }
-
-  // 3. Pre-update (chaque frame)
-  preUpdate(time: number, delta: number): void {
-    // Calculs préparatoires
-  }
-
-  // 4. Update (chaque frame)
-  update(time: number, delta: number): void {
-    // Logique principale
-  }
-
-  // 5. Destruction
-  destroy(): void {
-    // Nettoyage
-  }
-}
-```
-
-### Cycle de vie d'une scène Phaser
-
-```typescript
-class CustomScene extends Phaser.Scene {
-  // 1. Préchargement des assets
-  preload(): void {
-    this.load.image('key', 'path/to/image.png');
-  }
-
-  // 2. Création de la scène
-  create(): void {
-    // Initialisation des GameObjects
-  }
-
-  // 3. Mise à jour (60 FPS)
-  update(time: number, delta: number): void {
-    // Logique du jeu
-  }
-}
-```
-
-### Ajout d'un nouveau composant
-
-1. Créer le fichier dans `src/components/`
-2. Hériter de `BaseComponent`
-3. Implémenter la méthode `update()`
-4. Attacher le composant à une entité
-
-```typescript
-// MonComposant.ts
-export class MonComposant extends BaseComponent {
-  update(time: number, delta: number): void {
-    // Logique
-  }
-}
-
-// Dans une entité ou scène
-const sprite = new DemoSprite(this, x, y);
-sprite.addComponent(new MonComposant(sprite));
-```
-
----
-
-## 🎓 Objectifs pédagogiques
+## 🎓 Objectifs Pédagogiques
 
 Ce projet démontre :
+- ✅ Architecture logicielle professionnelle
+- ✅ Design patterns en Python
+- ✅ Type hints et typing.Protocol
+- ✅ Implémentation moteur physique
+- ✅ Gestion d'état et événements
+- ✅ Code maintenable et extensible
+- ✅ Principes SOLID en pratique
 
-✅ **Intégration d'un moteur de jeu** (Phaser 3) avec une architecture custom
-✅ **TypeScript strict** pour la qualité et la maintenabilité
-✅ **Design Patterns** appliqués à un contexte de jeu
-✅ **Principes SOLID** (Single Responsibility, Open/Closed, etc.)
-✅ **Séparation des préoccupations** (rendu vs logique métier)
-✅ **Tooling moderne** (Vite, HMR, path aliases)
-✅ **Documentation professionnelle** (JSDoc, README, architecture)
+## 🧪 Qualité de Code
 
----
+**Standards requis :**
+- Type hints complets (mypy --strict)
+- Style PEP 8 (black, flake8)
+- Docstrings pour classes publiques
+- Commentaires en français
+- Tests unitaires recommandés
 
-## 🚧 Prochaines étapes (Prompts suivants)
+## 📚 Ressources
 
-Ce projet est en développement itératif. Les prochaines fonctionnalités incluront :
+- [Documentation Pygame](https://www.pygame.org/docs/)
+- [Tutoriels Pygame](https://www.pygame.org/wiki/tutorials)
+- [Type hints Python](https://docs.python.org/3/library/typing.html)
+- [Design Patterns Python](https://refactoring.guru/design-patterns/python)
 
-### ✅ Terminé (Prompts 1-3)
-- [x] Architecture de base avec Entity-Component Pattern
-- [x] Système d'input et contrôles joueur (flèches + SHIFT)
-- [x] Implémentation des cyclistes avec Phaser Arcade Physics
-- [x] Physique réaliste (inertie, accélération, freinage)
-- [x] Système de caméra suivant le joueur
-- [x] Rotation dépendante de la vitesse
-- [x] Command Pattern pour le système d'input (découplage, testabilité, extensibilité)
-- [x] Configuration des key bindings (DEFAULT, WASD, HYBRID)
-- [x] InputHandler pour mapper actions → commandes
+## 🎮 Résultat Final
 
-### 🔜 À venir
-- [ ] Gestion du terrain et obstacles
-- [ ] Système d'endurance et équilibre
-- [ ] Intelligence Artificielle des adversaires
-- [ ] Interface utilisateur (HUD avec endurance, vitesse, position)
-- [ ] Système de collisions
-- [ ] Menu et écran de résultats
-- [ ] Sons et musiques
-- [ ] Système de particules et effets visuels (boue, poussière)
+À la fin des 11 prompts :
+- ✅ Jeu de cyclo-cross jouable
+- ✅ Architecture exemplaire
+- ✅ Design patterns bien appliqués
+- ✅ Type hints stricts partout
+- ✅ IA fonctionnelle
+- ✅ Système de course complet
+- ✅ UI polie
+- ✅ Code extensible
 
----
+## 💬 Comparaison Phaser vs Pygame
 
-## 📝 Licence
+**Phaser recommandé si :**
+- Déploiement web prioritaire
+- Besoin de rapidité de développement
+- Préférence pour TypeScript/JavaScript
 
-Projet éducatif développé dans le cadre d'un cours universitaire.
+**Pygame recommandé si :**
+- Apprentissage des mécaniques bas niveau
+- Préférence pour Python
+- Contrôle total souhaité
+- Distribution desktop
 
----
+## ✨ Points Forts de cette Approche
 
-## 🤝 Contribution
+1. **Pas de réinvention** : Les design patterns sont identiques entre Pygame et Phaser
+2. **Transférable** : Les concepts s'appliquent à n'importe quel framework
+3. **Compréhension** : Implémenter soi-même renforce l'apprentissage
+4. **Portfolio** : Code Python professionnel avec type hints
+5. **Évolutif** : Architecture permet ajout facile de features
 
-Ce projet suit une approche pédagogique guidée par prompts. Pour toute question ou suggestion d'amélioration de l'architecture, ouvrir une issue ou un PR.
+Bon développement ! 🚴‍♂️🐍
 
----
 
-**Développé avec ❤️ et Phaser 3**
+# Idée
+Sable |-------|-x-|------|
+      |----------|-x-|---|
+      |--|-x-|-----------|
+      Suivre l'ornière

@@ -1,0 +1,9 @@
+# Requirements pour le jeu de cyclo-cross
+# Généré le 2025-11-09
+
+# Moteur de jeu
+pygame==2.6.1
+
+# Pour les futures extensions possibles
+# numpy==1.26.4  # Pour calculs mathématiques avancés
+# pillow==10.2.0  # Pour manipulation d'images

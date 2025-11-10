@@ -1,0 +1,22 @@
+{
+    "name": "Full Terrain Test - Tous les types de terrain",
+    "width": 14,
+    "height": 14,
+    "tile_size": 32,
+    "terrain_grid": [
+        ["GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD"],
+        ["CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS"],
+        ["ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE"],
+        ["DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT"],
+        ["GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT"],
+        ["SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL"],
+        ["MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND"],
+        ["GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD"],
+        ["CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS"],
+        ["ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE"],
+        ["DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT"],
+        ["GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT"],
+        ["SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL"],
+        ["MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND", "MUD", "GRASS", "CONCRETE", "ASPHALT", "DIRT", "GRAVEL", "SAND"]
+    ]
+}

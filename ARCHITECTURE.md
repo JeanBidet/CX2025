@@ -1,530 +1,405 @@
-# Documentation d'Architecture - CycloCross 2025
+# Architecture du Jeu de Cyclo-Cross
 
 ## Vue d'ensemble
 
-CycloCross 2025 implémente une architecture **Entity-Component** adaptée à Phaser 3, combinant la puissance du moteur de jeu avec une séparation claire des responsabilités selon les principes SOLID.
+Ce document décrit l'architecture du jeu de cyclo-cross développé avec Pygame. L'architecture repose sur des principes solides de conception orientée objet et utilise plusieurs design patterns reconnus.
 
----
+## Principes architecturaux
 
-## Principes architecturaux fondamentaux
+### 1. Séparation des responsabilités (SRP - Single Responsibility Principle)
 
-### 1. Séparation Rendu / Logique Métier
+Chaque classe a une responsabilité unique et bien définie :
+- `Entity` : Gère la position, rotation, scale et les composants d'une entité
+- `IComponent` : Définit le contrat pour les composants
+- `EntityManager` : Gère le cycle de vie de toutes les entités
+- `SceneManager` : Gère les transitions entre scènes
+- `Game` : Orchestre le game loop principal
+
+### 2. Open/Closed Principle
+
+Le système est ouvert à l'extension mais fermé à la modification. Pour ajouter un nouveau comportement :
+- Créer un nouveau composant héritant de `IComponent`
+- Créer une nouvelle scène héritant de `Scene`
+- Aucune modification du code existant n'est nécessaire
+
+### 3. Composition sur héritage
+
+L'architecture Entity-Component favorise la composition :
+- Une entité peut avoir n'importe quelle combinaison de composants
+- Les comportements sont ajoutés dynamiquement
+- Évite les problèmes d'héritage multiple et de hiérarchies complexes
+
+## Structure du projet
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    COUCHE PHASER                            │
-│  (GameObjects, Physics, Rendering, Input, Assets)           │
-│                                                             │
-│  ┌───────────────────────────────────────────────────────┐ │
-│  │           COUCHE LOGIQUE MÉTIER                       │ │
-│  │     (Components, Systems, Patterns)                   │ │
-│  │                                                       │ │
-│  │  • Indépendante de Phaser                            │ │
-│  │  • Testable unitairement                             │ │
-│  │  • Réutilisable                                      │ │
-│  └───────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+CXPygame/
+├── main.py                     # Point d'entrée avec Game Loop
+├── config/
+│   ├── game_config.py          # Configuration du jeu
+│   └── constants.py            # Constantes globales
+├── entities/
+│   └── entity.py               # Classe Entity de base
+├── components/
+│   ├── icomponent.py           # Interface IComponent
+│   ├── renderer_component.py  # Composant de rendu
+│   └── movement_component.py  # Composant de mouvement
+├── systems/
+│   ├── entity_manager.py      # Gestionnaire d'entités
+│   └── scene_manager.py       # Gestionnaire de scènes
+├── scenes/
+│   ├── scene.py               # Classe Scene de base
+│   └── test_scene.py          # Scène de test
+├── patterns/
+│   ├── commands/              # Command Pattern (futurs prompts)
+│   ├── strategies/            # Strategy Pattern (futurs prompts)
+│   ├── states/                # State Pattern (futurs prompts)
+│   └── factories/             # Factory Pattern (futurs prompts)
+├── utils/
+│   └── vector2.py             # Classe Vector2 pour calculs 2D
+└── assets/
+    ├── sprites/               # Images et sprites
+    ├── fonts/                 # Polices de caractères
+    └── sounds/                # Fichiers audio
+```
+
+## Composants principaux
+
+### 1. Game Loop (main.py)
+
+Le game loop suit le pattern classique :
+
+```python
+while running:
+    delta_time = clock.tick(FPS) / 1000.0
+    handle_events()    # Gestion des événements
+    update(delta_time) # Mise à jour de la logique
+    render()           # Rendu à l'écran
+```
+
+**Points clés :**
+- FPS fixé à 60 via `pygame.time.Clock()`
+- Delta time en secondes pour mouvements indépendants du framerate
+- Double buffering avec `pygame.display.flip()`
+- Gestion de la pause et du fullscreen
+
+### 2. Architecture Entity-Component
+
+#### Entity (entities/entity.py)
+
+Une entité est un conteneur d'identité avec :
+- ID unique (UUID)
+- Position, rotation, scale (Vector2)
+- Collection de composants
+- Tags pour regroupement logique
+- État actif/inactif
+
+**Exemple d'utilisation :**
+```python
+player = Entity("Player")
+player.position = Vector2(100, 100)
+player.add_component(RendererComponent, 50, 50, Colors.CYAN)
+player.add_component(MovementComponent, 200.0)
+```
+
+#### IComponent (components/icomponent.py)
+
+Interface définissant le contrat pour tous les composants :
+- `init()` : Initialisation après attachement
+- `update(delta_time)` : Mise à jour logique
+- `destroy()` : Nettoyage des ressources
+- Référence au propriétaire (owner)
+- État enabled/disabled
+
+**Avantages :**
+- Type hints stricts pour la sécurité du typage
+- Cycle de vie clair et prévisible
+- Séparation logique/rendu
+
+### 3. Entity Manager (systems/entity_manager.py)
+
+Registre central implémentant le pattern Singleton :
+- Gestion du cycle de vie de toutes les entités
+- Indexation par ID, type, tag, composant
+- Mise à jour automatique de toutes les entités
+- Destruction différée (évite les problèmes d'itération)
+
+**Méthodes principales :**
+```python
+add_entity(entity)                        # Ajoute une entité
+get_entities_by_type(EntityType)          # Recherche par type
+get_entities_by_tag("player")             # Recherche par tag
+get_entities_with_component(Renderer)     # Recherche par composant
+update(delta_time)                        # Met à jour toutes les entités
+```
+
+### 4. Scene Manager (systems/scene_manager.py)
+
+Gère les différentes scènes du jeu (pattern Singleton) :
+- Enregistrement des scènes
+- Transitions entre scènes
+- Transmission de données entre scènes
+- Gestion du cycle de vie (enter/exit)
+
+**Flux de transition :**
+```python
+# Dans une scène
+self.set_next_scene("menu", {"score": 1000})
+
+# Le Scene Manager détecte la transition
+# et appelle automatiquement :
+current_scene.exit()
+new_scene.enter(data)
+```
+
+### 5. Scene (scenes/scene.py)
+
+Classe abstraite pour toutes les scènes :
+- `enter(data)` : Initialisation de la scène
+- `exit()` : Nettoyage de la scène
+- `handle_events(events)` : Gestion des événements
+- `update(delta_time)` : Logique métier
+- `render(screen)` : Rendu visuel
+
+Chaque scène a son propre Entity Manager.
+
+### 6. Vector2 (utils/vector2.py)
+
+Classe utilitaire pour calculs vectoriels 2D :
+
+**Opérations :**
+- Arithmétique : `+`, `-`, `*`, `/`
+- Longueur : `length()`, `length_squared()`
+- Normalisation : `normalize()`
+- Distance : `distance_to(other)`
+- Rotation : `rotate(angle)`
+- Interpolation : `lerp(other, t)`
+- Produits : `dot(other)`, `cross(other)`
+
+**Méthodes statiques :**
+```python
+Vector2.zero()   # (0, 0)
+Vector2.one()    # (1, 1)
+Vector2.up()     # (0, -1)
+Vector2.down()   # (0, 1)
+Vector2.left()   # (-1, 0)
+Vector2.right()  # (1, 0)
+```
+
+## Design Patterns utilisés
+
+### 1. Entity-Component Pattern
+
+**Problème résolu :** Éviter les hiérarchies d'héritage complexes.
+
+**Solution :** Composition de comportements via des composants attachables.
+
+**Exemple :**
+```python
+# Au lieu de : class Player(MovableEntity, RenderableEntity)
+# On fait :
+player = Entity("Player")
+player.add_component(MovementComponent)
+player.add_component(RendererComponent)
+```
+
+### 2. Singleton Pattern
+
+**Utilisé pour :** EntityManager, SceneManager
+
+**Justification :** Un seul gestionnaire global doit exister.
+
+**Implémentation :**
+```python
+class EntityManager:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+```
+
+### 3. Observer Pattern (implicite)
+
+Le système d'événements Pygame est une forme d'Observer Pattern :
+- Les événements sont émis par Pygame
+- Les scènes observent et réagissent aux événements
+
+### 4. Template Method Pattern
+
+La classe abstraite `Scene` définit le squelette :
+```python
+class Scene(ABC):
+    @abstractmethod
+    def enter(self, data): pass
+
+    @abstractmethod
+    def update(self, delta_time): pass
+
+    # etc.
+```
+
+Les sous-classes implémentent les détails spécifiques.
+
+## Configuration et constantes
+
+### GameConfig (config/game_config.py)
+
+Configuration centralisée avec dataclass :
+- Dimensions de la fenêtre
+- FPS cible
+- Vitesses par défaut
+- Paramètres de debug
+
+**Avantage :** Modification facile sans toucher au code.
+
+### Constants (config/constants.py)
+
+Constantes immuables :
+- Énumérations (GameState, SceneType)
+- Couleurs (Colors)
+- Touches (InputKeys)
+- Layers de rendu (RenderLayer)
+
+## Flux de données
+
+```
+main.py (Game Loop)
+    │
+    ├──> handle_events()
+    │       └──> SceneManager.handle_events()
+    │               └──> CurrentScene.handle_events()
+    │
+    ├──> update(delta_time)
+    │       └──> SceneManager.update()
+    │               └──> CurrentScene.update()
+    │                       └──> EntityManager.update()
+    │                               └──> Entity.update()
+    │                                       └──> Component.update()
+    │
+    └──> render()
+            └──> SceneManager.render()
+                    └──> CurrentScene.render()
+                            └──> Component.render()
+```
+
+## Gestion de la performance
+
+### 1. Delta Time
+
+Tous les mouvements utilisent le delta time :
+```python
+position += velocity * delta_time
+```
+
+Garantit des mouvements fluides indépendants du framerate.
+
+### 2. Limitation du Delta Time
+
+```python
+delta_time = min(delta_time, DELTA_TIME_MAX)
+```
+
+Évite les gros sauts en cas de lag.
+
+### 3. Indexation des entités
+
+L'Entity Manager maintient plusieurs index :
+- Par ID : O(1) lookup
+- Par type : O(1) lookup
+- Par tag : O(1) lookup
+- Par composant : O(n) mais rapide
+
+### 4. Destruction différée
+
+Les entités ne sont pas détruites immédiatement mais marquées pour destruction, évitant les problèmes d'itération.
+
+## Extensibilité
+
+L'architecture est conçue pour être facilement extensible :
+
+### Ajouter un nouveau composant
+
+1. Créer une classe héritant de `IComponent`
+2. Implémenter `init()`, `update()`, `destroy()`
+3. L'attacher à une entité
+
+```python
+class StaminaComponent(IComponent):
+    def init(self): self.stamina = 100
+    def update(self, dt): self.stamina -= dt * 5
+    def destroy(self): pass
+```
+
+### Ajouter une nouvelle scène
+
+1. Créer une classe héritant de `Scene`
+2. Implémenter les méthodes abstraites
+3. L'enregistrer dans le SceneManager
+
+```python
+class MenuScene(Scene):
+    def enter(self, data): ...
+    def update(self, dt): ...
+    # etc.
+```
+
+### Ajouter un nouveau système
+
+Créer un nouveau manager dans `systems/` si nécessaire.
+
+## Type Hints et sécurité du typage
+
+Tout le code utilise des type hints Python :
+```python
+def add_component(self, component_class: Type[T], *args, **kwargs) -> T:
 ```
 
 **Avantages :**
-- ✅ Phaser gère ce qu'il fait le mieux (rendu, physique, input)
-- ✅ Notre code métier reste indépendant et testable
-- ✅ Possibilité de changer de moteur sans tout réécrire
-- ✅ Respect du principe de séparation des préoccupations
-
-### 2. Entity-Component Pattern
-
-Au lieu de classes monolithiques héritant de Phaser.Sprite avec toute la logique, nous utilisons :
-
-```typescript
-// ❌ ANCIEN : Monolithique
-class Cyclist extends Phaser.Sprite {
-  stamina = 100;
-  balance = 50;
-
-  updateStamina() { /* ... */ }
-  updateBalance() { /* ... */ }
-  updateAI() { /* ... */ }
-  // 500 lignes de code...
-}
-
-// ✅ NOUVEAU : Composants modulaires
-class Cyclist extends Phaser.Sprite {
-  private components: IComponent[] = [];
-
-  addComponent(component: IComponent) {
-    this.components.push(component);
-  }
-}
-
-// Chaque composant = une responsabilité
-new Cyclist()
-  .addComponent(new StaminaComponent(this))
-  .addComponent(new BalanceComponent(this))
-  .addComponent(new AIComponent(this));
-```
-
-**Avantages :**
-- ✅ **Single Responsibility** : chaque composant a une seule raison de changer
-- ✅ **Open/Closed** : ajout de comportements sans modifier l'existant
-- ✅ **Composition over Inheritance**
-- ✅ Réutilisabilité maximale (un composant = plusieurs entités)
-
----
-
-## Architecture des Composants
-
-### Interface IComponent
-
-Contrat que tous les composants doivent respecter :
-
-```typescript
-interface IComponent {
-  readonly owner: Phaser.GameObjects.GameObject;
-
-  init(): void;                              // Initialisation
-  preUpdate(time: number, delta: number): void;  // Pré-traitement
-  update(time: number, delta: number): void;     // Logique principale
-  destroy(): void;                           // Nettoyage
-}
-```
-
-### Classe BaseComponent
-
-Implémentation de base avec comportement par défaut :
-
-```typescript
-abstract class BaseComponent implements IComponent {
-  constructor(protected owner: Phaser.GameObjects.GameObject) {}
-
-  // Méthodes avec implémentations par défaut
-  init(): void {}
-  preUpdate(time: number, delta: number): void {}
-  destroy(): void {}
-
-  // Méthode abstraite - DOIT être implémentée
-  abstract update(time: number, delta: number): void;
-}
-```
-
-### Cycle de vie d'un composant
-
-```
-1. Construction       new MyComponent(owner)
-         ↓
-2. Ajout à l'entité   entity.addComponent(component)
-         ↓
-3. Initialisation     component.init()
-         ↓
-4. Boucle de jeu      ┌─→ component.preUpdate(time, delta)
-   (60 FPS)           │   component.update(time, delta)
-                      └── (répété chaque frame)
-         ↓
-5. Destruction        component.destroy()
-```
-
----
-
-## Design Patterns Implémentés
-
-### 1. Command Pattern
-
-**But :** Encapsuler une action comme un objet.
-
-**Utilisation :** Gestion des inputs joueur, système undo/redo.
-
-```typescript
-interface ICommand {
-  execute(): void;
-  undo?(): void;
-}
-
-// Exemple : Commande d'accélération
-class AccelerateCommand implements ICommand {
-  constructor(private cyclist: Cyclist, private amount: number) {}
-
-  execute(): void {
-    this.cyclist.velocity += this.amount;
-  }
-
-  undo(): void {
-    this.cyclist.velocity -= this.amount;
-  }
-}
-
-// Utilisation
-const input = new InputHandler();
-input.bindKey('UP', new AccelerateCommand(player, 50));
-```
-
-**Avantages :**
-- Découple l'invocateur (input) de l'exécutant (cyclist)
-- Support undo/redo facilement
-- Queue de commandes possible (pour replay, AI, etc.)
-
----
-
-### 2. State Pattern
-
-**But :** Modifier le comportement d'un objet selon son état interne.
-
-**Utilisation :** États du cycliste (pédalage, sprint, portage, chute).
-
-```typescript
-interface IState<TContext> {
-  enter(context: TContext): void;
-  update(context: TContext, delta: number): void;
-  exit(context: TContext): void;
-}
-
-// États du cycliste
-class RidingState implements IState<Cyclist> {
-  enter(cyclist: Cyclist): void {
-    cyclist.animation.play('ride');
-  }
-
-  update(cyclist: Cyclist, delta: number): void {
-    // Logique de pédalage normal
-    if (cyclist.stamina < 20) {
-      cyclist.changeState(new RecoveringState());
-    }
-  }
-
-  exit(cyclist: Cyclist): void {
-    cyclist.animation.stop();
-  }
-}
-
-class SprintingState implements IState<Cyclist> {
-  // État de sprint avec consommation d'endurance accrue
-}
-```
-
-**Avantages :**
-- Chaque état = une classe (Single Responsibility)
-- Transitions d'états explicites
-- Facilite l'ajout de nouveaux états
-
----
-
-### 3. Strategy Pattern
-
-**But :** Définir une famille d'algorithmes interchangeables.
-
-**Utilisation :** IA des adversaires, calculs de terrain.
-
-```typescript
-interface IStrategy<TInput, TOutput> {
-  execute(input: TInput): TOutput;
-}
-
-// Stratégies d'IA
-class AggressiveAI implements IStrategy<AIInput, void> {
-  execute(input: AIInput): void {
-    // Sprinte souvent, prend des risques
-  }
-}
-
-class DefensiveAI implements IStrategy<AIInput, void> {
-  execute(input: AIInput): void {
-    // Économise l'endurance, évite les obstacles
-  }
-}
-
-// Changement de stratégie à la volée
-opponent.setAIStrategy(new AggressiveAI());
-```
-
-**Avantages :**
-- Algorithmes interchangeables à runtime
-- Open/Closed : nouveaux algorithmes sans modifier l'existant
-- Facilite les tests (mock des stratégies)
-
----
-
-### 4. Factory Pattern (à venir)
-
-**But :** Créer des objets sans spécifier leur classe exacte.
-
-**Utilisation :** Création d'obstacles, d'adversaires IA, de terrains.
-
-```typescript
-// Sera implémenté dans les prompts suivants
-interface IEntityFactory {
-  create(config: EntityConfig): Phaser.GameObjects.GameObject;
-}
-
-class CyclistFactory implements IEntityFactory {
-  create(config: CyclistConfig): Cyclist {
-    const cyclist = new Cyclist(/* ... */);
-    cyclist.addComponent(new StaminaComponent(cyclist));
-    cyclist.addComponent(new BalanceComponent(cyclist));
-    return cyclist;
-  }
-}
-```
-
----
-
-## Flux de données et interactions
-
-### 1. Boucle de jeu principale
-
-```
-User Input
-    ↓
-Command Pattern (AccelerateCommand, JumpCommand)
-    ↓
-Entity (Cyclist)
-    ↓
-Components (StaminaComponent, BalanceComponent)
-    ↓
-State Pattern (RidingState, SprintingState)
-    ↓
-Phaser GameObject Update
-    ↓
-Rendering (Phaser)
-```
-
-### 2. Mise à jour d'une entité avec composants
-
-```typescript
-// Dans RaceScene.update()
-update(time: number, delta: number): void {
-  // Pour chaque entité avec composants
-  this.entities.forEach(entity => {
-    entity.updateComponents(time, delta);
-  });
-}
-
-// Dans Entity.updateComponents()
-updateComponents(time: number, delta: number): void {
-  this.components.forEach(component => {
-    if (component.isActive()) {
-      component.preUpdate(time, delta);
-      component.update(time, delta);
-    }
-  });
-}
-```
-
----
-
-## Principes SOLID appliqués
-
-### S - Single Responsibility Principle
-
-✅ **Chaque composant a une seule responsabilité**
-- `StaminaComponent` : gestion de l'endurance uniquement
-- `BalanceComponent` : gestion de l'équilibre uniquement
-- `AIComponent` : intelligence artificielle uniquement
-
-### O - Open/Closed Principle
-
-✅ **Ouvert à l'extension, fermé à la modification**
-- Ajout d'un nouveau composant sans modifier les existants
-- Nouveaux états/stratégies sans changer le code de base
-
-```typescript
-// Ajout d'un nouveau composant sans toucher au reste
-class TurboComponent extends BaseComponent {
-  update(time: number, delta: number): void {
-    // Nouvelle fonctionnalité
-  }
-}
-
-cyclist.addComponent(new TurboComponent(cyclist));
-```
-
-### L - Liskov Substitution Principle
-
-✅ **Les dérivées peuvent remplacer les classes de base**
-- Tout `BaseComponent` peut être remplacé par une sous-classe
-- `IState<Cyclist>` : tous les états sont interchangeables
-
-### I - Interface Segregation Principle
-
-✅ **Interfaces spécifiques plutôt qu'une interface générale**
-- `IComponent` : contrat de composant
-- `ICommand` : contrat de commande
-- `IState<T>` : contrat d'état (générique)
-- `IStrategy<TIn, TOut>` : contrat de stratégie (générique)
-
-### D - Dependency Inversion Principle
-
-✅ **Dépendre d'abstractions, pas de concrétions**
-- Les entités dépendent de `IComponent`, pas de classes concrètes
-- Le système d'IA dépend de `IStrategy`, pas d'implémentations
-
-```typescript
-// ❌ Mauvais : dépend d'une classe concrète
-class Cyclist {
-  private ai = new AggressiveAI();  // Couplage fort
-}
-
-// ✅ Bon : dépend d'une interface
-class Cyclist {
-  private ai: IStrategy<AIInput, void>;
-
-  setAI(ai: IStrategy<AIInput, void>) {
-    this.ai = ai;  // Injection de dépendance
-  }
-}
-```
-
----
-
-## Structure de fichiers détaillée
-
-```
-src/
-├── main.ts                    # Point d'entrée
-│
-├── config/                    # Configuration
-│   ├── gameConfig.ts          # Config Phaser
-│   ├── constants.ts           # Constantes globales
-│   └── index.ts               # Exports
-│
-├── scenes/                    # Scènes Phaser
-│   └── RaceScene.ts           # Scène de course
-│
-├── entities/                  # GameObjects avec composants
-│   └── DemoSprite.ts          # Exemple d'entité
-│
-├── components/                # Composants métier
-│   ├── BaseComponent.ts       # Classe de base
-│   └── RotationComponent.ts   # Exemple de composant
-│
-├── systems/                   # Systèmes globaux
-│   ├── RaceManager.ts         # (À venir)
-│   └── TerrainManager.ts      # (À venir)
-│
-├── patterns/                  # Design patterns
-│   ├── commands/              # Pattern Command
-│   ├── strategies/            # Pattern Strategy
-│   ├── states/                # Pattern State
-│   └── factories/             # Pattern Factory
-│
-├── types/                     # Types TypeScript
-│   ├── IComponent.ts          # Interface Component
-│   ├── ICommand.ts            # Interface Command
-│   ├── IState.ts              # Interface State
-│   ├── IStrategy.ts           # Interface Strategy
-│   ├── enums.ts               # Énumérations
-│   ├── gameData.ts            # Types de données
-│   └── index.ts               # Exports centralisés
-│
-└── utils/                     # Utilitaires
-    └── MathUtils.ts           # Fonctions mathématiques
-```
-
----
-
-## Exemple concret : Création d'un cycliste
-
-```typescript
-// 1. Créer l'entité Phaser
-const cyclist = new Cyclist(scene, x, y);
-
-// 2. Ajouter les composants métier
-cyclist.addComponent(new StaminaComponent(cyclist, {
-  maxStamina: 100,
-  recoveryRate: 10
-}));
-
-cyclist.addComponent(new BalanceComponent(cyclist, {
-  maxBalance: 80,
-  stabilityFactor: 0.5
-}));
-
-cyclist.addComponent(new AIComponent(cyclist,
-  new AggressiveAI()  // Strategy Pattern
-));
-
-// 3. Définir l'état initial
-cyclist.changeState(new RidingState());  // State Pattern
-
-// 4. Ajouter à la scène
-scene.add.existing(cyclist);
-
-// 5. Le update est géré automatiquement
-// RaceScene.update() → cyclist.updateComponents() → chaque component.update()
-```
-
----
-
-## Tests et maintenabilité
-
-### Testabilité des composants
-
-Les composants sont faciles à tester unitairement car ils :
-- N'ont qu'une seule responsabilité
-- Dépendent d'interfaces, pas de concrétions
-- Peuvent être testés sans Phaser (mock du owner)
-
-```typescript
-// Test exemple (pseudo-code)
-describe('StaminaComponent', () => {
-  it('should decrease stamina when sprinting', () => {
-    const mockOwner = createMockGameObject();
-    const stamina = new StaminaComponent(mockOwner);
-
-    stamina.sprint();
-    stamina.update(0, 16); // 1 frame à 60 FPS
-
-    expect(stamina.getValue()).toBeLessThan(100);
-  });
-});
-```
-
-### Extensibilité
-
-Pour ajouter une nouvelle fonctionnalité :
-1. Créer un nouveau composant héritant de `BaseComponent`
-2. Implémenter la méthode `update()`
-3. Ajouter le composant aux entités concernées
-
-**Aucune modification du code existant nécessaire** (Open/Closed Principle).
-
----
-
-## Conventions de nommage
-
-| Type | Convention | Exemple |
-|------|-----------|---------|
-| Interface | `I` + PascalCase | `IComponent`, `ICommand` |
-| Classe | PascalCase | `BaseComponent`, `Cyclist` |
-| Composant | PascalCase + `Component` | `StaminaComponent` |
-| État | PascalCase + `State` | `RidingState` |
-| Stratégie | PascalCase + suffixe | `AggressiveAI` |
-| Fichier | Même nom que l'export principal | `StaminaComponent.ts` |
-
----
-
-## Prochaines étapes (Prompts suivants)
-
-1. **Système d'input** : Implémentation du Command Pattern pour les contrôles
-2. **Physique et mouvement** : Composants de vélocité et collision
-3. **Terrain et obstacles** : Factory Pattern pour génération procédurale
-4. **Endurance et équilibre** : Composants métier complets
-5. **Intelligence Artificielle** : Strategy Pattern pour comportements IA
-6. **Interface utilisateur** : HUD avec barre d'endurance, position, temps
-7. **Système de caméra** : Suivi fluide du joueur
-8. **Audio** : Musique et effets sonores
-9. **Particules et effets** : Visuel de boue, poussière, etc.
-10. **Menu et résultats** : Scènes additionnelles
-
----
-
-## Ressources et références
-
-- [Phaser 3 Documentation](https://photonstorm.github.io/phaser3-docs/)
-- [Game Programming Patterns](https://gameprogrammingpatterns.com/)
-- [SOLID Principles](https://en.wikipedia.org/wiki/SOLID)
-- [Entity Component System](https://en.wikipedia.org/wiki/Entity_component_system)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
-
----
-
-**Document créé le 28 octobre 2025**
-**Projet CycloCross 2025 - Architecture de base**
+- Auto-complétion dans l'IDE
+- Détection d'erreurs avant l'exécution
+- Documentation implicite
+- Meilleure maintenabilité
+
+## Tests et validation
+
+Pour tester l'architecture :
+
+1. Lancer le jeu : `python main.py`
+2. Vérifier que la fenêtre s'ouvre
+3. Vérifier les FPS (doivent être ~60)
+4. Tester les contrôles (flèches ou WASD)
+5. Tester les touches de debug (F3, P, F11, ESC)
+
+**Scène de test :**
+- Rectangle cyan contrôlable
+- 3 obstacles statiques
+- Instructions à l'écran
+- Debug info (FPS, entités)
+
+## Prochaines étapes (futurs prompts)
+
+L'architecture est prête pour :
+1. Ajout de sprites et animations
+2. Système de physique (collisions, gravité)
+3. IA des adversaires (Strategy Pattern)
+4. Gestion du terrain (mud, sand, obstacles)
+5. Système de stamina et balance
+6. Menu et interface utilisateur
+7. Sauvegarde et chargement
+8. Sons et musique
+9. Effets de particules
+10. Mode multijoueur
+
+## Références
+
+- **Pygame Documentation** : https://www.pygame.org/docs/
+- **Game Programming Patterns** : Robert Nystrom
+- **SOLID Principles** : Robert C. Martin
+- **Entity-Component-System** : https://en.wikipedia.org/wiki/Entity_component_system
+
+## Conclusion
+
+Cette architecture fournit une base solide et extensible pour le développement du jeu de cyclo-cross. Elle respecte les principes SOLID, utilise des design patterns éprouvés, et facilite l'ajout de nouvelles fonctionnalités sans modifier le code existant.
+
+Le code est entièrement typé, documenté, et structuré de manière professionnelle, permettant une maintenance aisée et une collaboration efficace.
